@@ -6,11 +6,12 @@ import matplotlib
 import matplotlib.pyplot as plt
 from scipy.stats import skew
 
-from sklearn.linear_model import Ridge, LassoCV
 from sklearn.model_selection import cross_val_score
+from sklearn import svm
 
 # Constants
 TRAIN_DATA_PROPORTION = 0.7
+
 
 # Somewhat more advanced regression, performs regularization to eliminate some variables that are not necessary
 
@@ -36,6 +37,8 @@ all_data[skewed_feats] = np.log1p(all_data[skewed_feats])
 all_data = pd.get_dummies(all_data)
 all_data = all_data.fillna(all_data.mean())
 
+
+
 # Split data
 treshold = int(len(train) * TRAIN_DATA_PROPORTION)
 X_train = all_data[0:treshold]
@@ -45,6 +48,7 @@ X_test = all_data[treshold:1460]
 y_test = train[treshold:1460].SalePrice
 
 
+
 # Root mean square error
 def rmse_cv(model):
     rmse = np.sqrt(-cross_val_score(model, X_train, y_train,
@@ -52,27 +56,24 @@ def rmse_cv(model):
     return rmse
 
 
-# Trying L1 regularization
-model_lasso = LassoCV(alphas=[1, 0.1, 0.001, 0.0005],
-                      cv=5).fit(X_train, y_train)
-rmse_cv(model_lasso).mean()
+# Trying SVM using SVR model
+model_svm = svm.SVR(gamma='scale')
+model_svm = model_svm.fit(X_train, y_train)
+rmse_cv(model_svm).mean() # Why do we need to do this exactly?
 
-
-# Lasso gives us an alpha of 0.1231, picks some coefficients and gives the rest a 0 value
-coef = pd.Series(model_lasso.coef_, index=X_train.columns)
+# Coefficients not present since we lack a linear model
+# coef = pd.Series(model_svm.coef_, index=X_train.columns)
 
 # Plotting Residuals
-
-plt.scatter(model_lasso.predict(X_train), model_lasso.predict(X_train) - y_train,
+plt.scatter(model_svm.predict(X_train), model_svm.predict(X_train) - y_train,
             color="green", s=10, label='Train data')
 
-plt.scatter(model_lasso.predict(X_test), model_lasso.predict(X_test) - y_test,
+plt.scatter(model_svm.predict(X_test), model_svm.predict(X_test) - y_test,
             color="blue", s=10, label='Test data')
 
 plt.hlines(y=0, xmin=10, xmax=14, linewidth=2)
-
 plt.legend(loc='upper right')
 plt.title("Residual errors")
 plt.show()
 
-print('Variance score: {}'.format(round(model_lasso.score(X_test, y_test),3)))
+print('Variance score: {}'.format(round(model_svm.score(X_test, y_test),3)))
