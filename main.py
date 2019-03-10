@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-
+import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy.stats import skew
 
@@ -10,6 +10,7 @@ from sklearn import linear_model
 
 # Data preprocessing
 train = pd.read_csv("./data/train.csv")
+otherTrain = pd.read_csv("./data/other_train.csv")
 test = pd.read_csv("./data/test.csv")
 all_data = train.loc[:, 'MSSubClass':'SaleCondition']
 
@@ -29,7 +30,22 @@ X_train = all_data[:730]
 X_test = all_data[730:]
 y_train = train[:730].SalePrice
 y_test = train[730:].SalePrice
+print(train['SalePrice'].describe())
 
+#Heatmap
+#corrmat = otherTrain.corr()
+#f, ax = plt.subplots(figsize=(15, 12))
+#sns.heatmap(corrmat, vmax=.8, square=True);
+#plt.show();
+
+#missing data
+total = train.isnull().sum().sort_values(ascending=False)
+percent = (train.isnull().sum()/train.isnull().count()).sort_values(ascending=False)
+missing_data = pd.concat([total, percent], axis=1, keys=['Total', 'Percent'])
+print(missing_data)
+
+
+exit()
 # create linear regression object 
 reg = linear_model.LinearRegression() 
   
