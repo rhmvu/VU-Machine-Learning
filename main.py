@@ -3,14 +3,14 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy.stats import skew
-
 from sklearn import linear_model
+from sklearn.preprocessing import Imputer
+from sklearn import preprocessing
 
 # Very basic linear regression model, takes into account all variables
 
 # Data preprocessing
 train = pd.read_csv("./data/train.csv")
-otherTrain = pd.read_csv("./data/other_train.csv")
 test = pd.read_csv("./data/test.csv")
 all_data = train.loc[:, 'MSSubClass':'SaleCondition']
 
@@ -38,12 +38,26 @@ print(train['SalePrice'].describe())
 #sns.heatmap(corrmat, vmax=.8, square=True);
 #plt.show();
 
-#missing data
+#The following lines remove columns with +20% missing values
+#And columns with a high correlation
+#print(train)
+train = train.drop(['1stFlrSF', 'GarageYrBlt', 'GarageArea', 'GrLivArea'], 1)
+#print(train)
 total = train.isnull().sum().sort_values(ascending=False)
 percent = (train.isnull().sum()/train.isnull().count()).sort_values(ascending=False)
 missing_data = pd.concat([total, percent], axis=1, keys=['Total', 'Percent'])
-print(missing_data)
+df_train = train.drop((missing_data[missing_data['Total'] > 200]).index,1)
 
+
+#fill the empty spots in the features
+le = preprocessing.LabelEncoder()
+print(df_train.columns.values)
+onlyNumerical = pd.get_dummies(df_train)
+#le.fit(df_train)
+#imp = Imputer(missing_values=np.nan, strategy='most_frequent')
+#filledData = imp.fit(df_train)
+#filledData = imp.transform(filledData)
+print(onlyNumerical)
 
 exit()
 # create linear regression object 
