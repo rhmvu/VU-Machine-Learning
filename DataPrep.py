@@ -8,9 +8,27 @@ from scipy.stats import skew
 from IPython.display import display
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.exceptions import DataConversionWarning
+import warnings
+
 
 # Definitions
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
+
+
+def normalize(train):
+    # Loop through all nummerical feature columns
+    warnings.filterwarnings(action='ignore', category=DataConversionWarning)
+    stdSc = StandardScaler()
+
+    # for column in train.select_dtypes(exclude=["object"]).columns:
+        # max = train.loc[:, column].max()
+        # min = train.loc[:, column].min()
+        # train.loc[:, column] = train.loc[:, column].apply(
+        #     lambda x: (x-min)/(max-min))
+    train.loc[:, train.select_dtypes(exclude=["object"]).columns] = stdSc.fit_transform(train.loc[:, train.select_dtypes(exclude=["object"]).columns])
+    return train
+
 
 def handle_cat(train):
     # Handle missing values for features where median/mean or most common value doesn't make sense
@@ -77,7 +95,8 @@ def handle_cat(train):
     train.loc[:, "PoolQC"] = train.loc[:, "PoolQC"].fillna("No")
     train.loc[:, "PoolArea"] = train.loc[:, "PoolArea"].fillna(0)
     # SaleCondition : NA most likely means normal sale
-    train.loc[:, "SaleCondition"] = train.loc[:, "SaleCondition"].fillna("Normal")
+    train.loc[:, "SaleCondition"] = train.loc[:,
+                                              "SaleCondition"].fillna("Normal")
     # ScreenPorch : NA most likely means no screen porch
     train.loc[:, "ScreenPorch"] = train.loc[:, "ScreenPorch"].fillna(0)
     # TotRmsAbvGrd : NA most likely means 0
@@ -124,7 +143,7 @@ def handle_cat(train):
     return train
 
 
-def prep_data():
+def prep_data(quiet):
     train = pd.read_csv("data/train.csv")
     # remove outliers of GrLivArea
     train = train[train.GrLivArea < 4000]
@@ -137,38 +156,52 @@ def prep_data():
     categorical_features = train.select_dtypes(include=["object"]).columns
     numerical_features = train.select_dtypes(exclude=["object"]).columns
     numerical_features = numerical_features.drop("SalePrice")
-    print("Numerical features : " + str(len(numerical_features)))
-    print("Categorical features : " + str(len(categorical_features)))
+    if not quiet:
+        print("Numerical features : " + str(len(numerical_features)))
+        print("Categorical features : " + str(len(categorical_features)))
     train_num = train[numerical_features]
     train_cat = train[categorical_features]
 
     # Handle remaining missing values for numerical features by using median as replacement
-    print("NAs for numerical features in train : " + str(train_num.isnull().values.sum()))
+    if not quiet:
+        print("NAs for numerical features in train : " +
+          str(train_num.isnull().values.sum()))
     train_num = train_num.fillna(train_num.median())
-    print("Remaining NAs for numerical features in train : " + str(train_num.isnull().values.sum()))
+    if not quiet:
+        print("Remaining NAs for numerical features in train : " +
+          str(train_num.isnull().values.sum()))
 
     # Log transform of the skewed numerical features to lessen impact of outliers
     # Inspired by Alexandru Papiu's script : https://www.kaggle.com/apapiu/house-prices-advanced-regression-techniques/regularized-linear-models
     # As a general rule of thumb, a skewness with an absolute value > 0.5 is considered at least moderately skewed
     skewness = train_num.apply(lambda x: skew(x))
     skewness = skewness[abs(skewness) > 0.5]
-    print(str(skewness.shape[0]) + " skewed numerical features to log transform")
+    if not quiet:
+        print(str(skewness.shape[0]) +
+          " skewed numerical features to log transform")
     skewed_features = skewness.index
     train_num[skewed_features] = np.log1p(train_num[skewed_features])
 
     # Create dummy features for categorical values via one-hot encoding
-    print("NAs for categorical features in train : " + str(train_cat.isnull().values.sum()))
+    if not quiet:
+        print("NAs for categorical features in train : " +
+          str(train_cat.isnull().values.sum()))
+    
     train_cat = pd.get_dummies(train_cat)
-    print("Remaining NAs for categorical features in train : " + str(train_cat.isnull().values.sum()))
+    
+    if not quiet:
+        print("Remaining NAs for categorical features in train : " +
+          str(train_cat.isnull().values.sum()))
 
     # Concatenate numerical and categorical features.
     train = pd.concat([y, train_num, train_cat], axis=1)
-    print("New number of features : " + str(train.shape[1]))
+    if not quiet:
+        print("New number of features : " + str(train.shape[1]))
 
     return train
 
 
-def prep_data_rico():
+def prep_data_rico(quiet):
     # Data preprocessing
     train = pd.read_csv("./data/train.csv")
     train.SalePrice = np.log1p(train.SalePrice)
@@ -176,10 +209,13 @@ def prep_data_rico():
 
     # The following lines remove columns with +20% missing values
     # And columns with a high correlation
-    train = train.drop(['1stFlrSF', 'GarageYrBlt', 'GarageArea', 'TotRmsAbvGrd'], 1)
+    train = train.drop(
+        ['1stFlrSF', 'GarageYrBlt', 'GarageArea', 'TotRmsAbvGrd'], 1)
     total = train.isnull().sum().sort_values(ascending=False)
-    percent = (train.isnull().sum() / train.isnull().count()).sort_values(ascending=False)
-    missing_data = pd.concat([total, percent], axis=1, keys=['Total', 'Percent'])
+    percent = (train.isnull().sum() / train.isnull().count()
+               ).sort_values(ascending=False)
+    missing_data = pd.concat([total, percent], axis=1,
+                             keys=['Total', 'Percent'])
     train = train.drop((missing_data[missing_data['Total'] > 200]).index, 1)
 
     # Handle missing values for features where median/mean or most common value doesn't make sense
@@ -233,7 +269,8 @@ def prep_data_rico():
     train.loc[:, "PavedDrive"] = train.loc[:, "PavedDrive"].fillna("N")
     train.loc[:, "PoolArea"] = train.loc[:, "PoolArea"].fillna(0)
     # SaleCondition : NA most likely means normal sale
-    train.loc[:, "SaleCondition"] = train.loc[:, "SaleCondition"].fillna("Normal")
+    train.loc[:, "SaleCondition"] = train.loc[:,
+                                              "SaleCondition"].fillna("Normal")
     # ScreenPorch : NA most likely means no screen porch
     train.loc[:, "ScreenPorch"] = train.loc[:, "ScreenPorch"].fillna(0)
     # Utilities : NA most likely means all public utilities
@@ -280,40 +317,51 @@ def prep_data_rico():
     categorical_features = train.select_dtypes(include=["object"]).columns
     numerical_features = train.select_dtypes(exclude=["object"]).columns
     numerical_features = numerical_features.drop("SalePrice")
-    print("Numerical features : " + str(len(numerical_features)))
-    print("Categorical features : " + str(len(categorical_features)))
+    if not quiet:
+        print("Numerical features : " + str(len(numerical_features)))
+        print("Categorical features : " + str(len(categorical_features)))
     train_num = train[numerical_features]
     train_cat = train[categorical_features]
 
     # Handle remaining missing values for numerical features by using median as replacement
-    print("NAs for numerical features in train : " + str(train_num.isnull().values.sum()))
+    if not quiet:
+        print("NAs for numerical features in train : " +
+          str(train_num.isnull().values.sum()))
     train_num = train_num.fillna(train_num.median())
-    print("Remaining NAs for numerical features in train : " + str(train_num.isnull().values.sum()))
+    
+    if not quiet:
+        print("Remaining NAs for numerical features in train : " +
+          str(train_num.isnull().values.sum()))
 
     # Log transform of the skewed numerical features to lessen impact of outliers
     # Inspired by Alexandru Papiu's script : https://www.kaggle.com/apapiu/house-prices-advanced-regression-techniques/regularized-linear-models
     # As a general rule of thumb, a skewness with an absolute value > 0.5 is considered at least moderately skewed
     skewness = train_num.apply(lambda x: skew(x))
     skewness = skewness[abs(skewness) > 0.5]
-    print(str(skewness.shape[0]) + " skewed numerical features to log transform")
+    if not quiet:
+        print(str(skewness.shape[0]) +
+          " skewed numerical features to log transform")
     skewed_features = skewness.index
     train_num[skewed_features] = np.log1p(train_num[skewed_features])
 
     # Create dummy features for categorical values via one-hot encoding
-    print("NAs for categorical features in train : " + str(train_cat.isnull().values.sum()))
+    if not quiet:
+        print("NAs for categorical features in train : " +
+          str(train_cat.isnull().values.sum()))
+    
     train_cat = pd.get_dummies(train_cat)
-    print("Remaining NAs for categorical features in train : " + str(train_cat.isnull().values.sum()))
+    
+    if not quiet:
+        print("Remaining NAs for categorical features in train : " +
+          str(train_cat.isnull().values.sum()))
 
     # Concatenate numerical and categorical features.
     train = pd.concat([y, train_num, train_cat], axis=1)
-    print("New number of features : " + str(train.shape[1]))
+    if not quiet:
+        print("New number of features : " + str(train.shape[1]))
 
     corrmat = train.corr()
     k = 80  # number of features we keep
     cols = corrmat.nlargest(k, 'SalePrice')['SalePrice'].index
 
     return train[cols]
-
-
-
-

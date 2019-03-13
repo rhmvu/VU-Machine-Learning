@@ -12,29 +12,40 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import DataPrep
 
-train = DataPrep.prep_data_rico()
-target = train.SalePrice
-train = train.drop(columns='SalePrice')
-numerical_features = train.select_dtypes(exclude = ["object"]).columns
+headless_run = True
 
 
-X_train, X_test, y_train, y_test = train_test_split(train, target, test_size = 0.25, random_state = 0)
-#
-# stdSc = StandardScaler()
-# X_train.loc[:, numerical_features] = stdSc.fit_transform(X_train.loc[:, numerical_features])
-# X_test.loc[:, numerical_features] = stdSc.fit_transform(X_test.loc[:, numerical_features])
-
-# Perform GridSearch. See https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsRegressor.html#sklearn.neighbors.KNeighborsRegressor
-# for all available parameters.
-parameters = {'n_neighbors':[6,13,14,15,16,17], 'algorithm':('ball_tree', 'kd_tree', 'brute'), 'leaf_size':[1,2,3,4], 'weights':('uniform', 'distance'), 'p':[1,2]}
-knnr = KNeighborsRegressor()
-clf = GridSearchCV(knnr, parameters, 'neg_mean_squared_error', cv=5)
-clf.fit(X_train, y_train)
-print(clf.best_score_)
-print(clf.best_estimator_)
-print(clf.best_index_)
-
-MSEscore = mean_squared_error(clf.predict(X_test),y_test)
-print(MSEscore)
+def run():
+    train = DataPrep.prep_data_rico(headless_run)
+    target = train.SalePrice
+    train = train.drop(columns='SalePrice')
+    numerical_features = train.select_dtypes(exclude = ["object"]).columns
 
 
+    X_train, X_test, y_train, y_test = train_test_split(train, target, test_size = 0.25, random_state = 0)
+    #
+    # stdSc = StandardScaler()
+    # X_train.loc[:, numerical_features] = stdSc.fit_transform(X_train.loc[:, numerical_features])
+    # X_test.loc[:, numerical_features] = stdSc.fit_transform(X_test.loc[:, numerical_features])
+
+    # Perform GridSearch. See https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsRegressor.html#sklearn.neighbors.KNeighborsRegressor
+    # for all available parameters.
+    parameters = {'n_neighbors':[6,13,14,15,16,17], 'algorithm':('ball_tree', 'kd_tree', 'brute'), 'leaf_size':[1,2,3,4], 'weights':('uniform', 'distance'), 'p':[1,2]}
+    knnr = KNeighborsRegressor()
+    clf = GridSearchCV(knnr, parameters, 'neg_mean_squared_error', cv=5)
+    clf.fit(X_train, y_train)
+    variance_score = round(clf.score(X_test, y_test), 3)
+
+    if not headless_run:
+        print('Variance score: {}'.format(variance_score))
+        print(clf.best_score_)
+        print(clf.best_estimator_)
+        print(clf.best_index_)
+        MSEscore = mean_squared_error(clf.predict(X_test),y_test)
+        print(MSEscore)
+    return variance_score
+
+
+if __name__ == "__main__":
+    headless_run = False
+    run()

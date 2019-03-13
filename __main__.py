@@ -1,12 +1,14 @@
 import svm
 import lin_reg
 import basic_lin_reg
+import KNN
 from multiprocessing import Process
 
 model = {
     "Basic Linear Regression Model": basic_lin_reg,
     "Advanced Linear Regression Model": lin_reg,
-    "Support Vector Machine (regression)": svm
+    "Support Vector Machine (regression)": svm,
+    "K Nearest Neighbours": KNN
 }
 
 
