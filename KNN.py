@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import DataPrep
 
-train = DataPrep.prep_data()
+train = DataPrep.prep_data_rico()
 target = train.SalePrice
 train = train.drop(columns='SalePrice')
 numerical_features = train.select_dtypes(exclude = ["object"]).columns
@@ -26,7 +26,7 @@ X_train, X_test, y_train, y_test = train_test_split(train, target, test_size = 0
 
 # Perform GridSearch. See https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsRegressor.html#sklearn.neighbors.KNeighborsRegressor
 # for all available parameters.
-parameters = {'n_neighbors':[12,13,14,15], 'algorithm':('ball_tree', 'kd_tree', 'brute'), 'leaf_size':[1,2,3,4], 'weights':('uniform', 'distance'), 'p':[1,2]}
+parameters = {'n_neighbors':[6,13,14,15,16,17], 'algorithm':('ball_tree', 'kd_tree', 'brute'), 'leaf_size':[1,2,3,4], 'weights':('uniform', 'distance'), 'p':[1,2]}
 knnr = KNeighborsRegressor()
 clf = GridSearchCV(knnr, parameters, 'neg_mean_squared_error', cv=5)
 clf.fit(X_train, y_train)
@@ -36,9 +36,5 @@ print(clf.best_index_)
 
 MSEscore = mean_squared_error(clf.predict(X_test),y_test)
 print(MSEscore)
-
-
-
-
 
 
