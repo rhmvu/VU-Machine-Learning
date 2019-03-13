@@ -12,6 +12,7 @@ import seaborn as sns
 # Definitions
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
 
+
 def handle_cat(train):
     # Handle missing values for features where median/mean or most common value doesn't make sense
     # Alley : data description says NA means "no alley access"

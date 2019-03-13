@@ -1,8 +1,7 @@
-import numpy as np
-import pandas as pd
-
+from sklearn.model_selection import train_test_split
+from DataPrep import prep_data_rico
 import matplotlib.pyplot as plt
-from scipy.stats import skew
+from sklearn.metrics import mean_squared_error
 
 from sklearn import linear_model
 
@@ -15,30 +14,12 @@ headless_run = True
 
 
 def run():
-    # Data preprocessing
-    train = pd.read_csv("./data/train.csv")
-    test = pd.read_csv("./data/test.csv")
-    all_data = train.loc[:, 'MSSubClass':'SaleCondition']
+    train = prep_data_rico()
+    target = train.SalePrice
+    train = train.drop(columns='SalePrice')
+    numerical_features = train.select_dtypes(exclude=["object"]).columns
 
-    # log transform skewed numeric features:
-    numeric_feats = all_data.dtypes[all_data.dtypes != "object"].index
-
-    skewed_feats = train[numeric_feats].apply(lambda x: skew(x.dropna()))
-    skewed_feats = skewed_feats[skewed_feats > 0.75]
-    skewed_feats = skewed_feats.index
-
-    all_data[skewed_feats] = np.log1p(all_data[skewed_feats])
-
-    all_data = pd.get_dummies(all_data)
-    all_data = all_data.fillna(all_data.mean())
-
-    # Split data
-    treshold = int(len(train) * TRAIN_DATA_PROPORTION)
-    X_train = all_data[0:treshold]
-    y_train = train[0:treshold].SalePrice
-
-    X_test = all_data[treshold:1460]
-    y_test = train[treshold:1460].SalePrice
+    X_train, X_test, y_train, y_test = train_test_split(train, target, test_size=0.25, random_state=0)
 
     # create linear regression object
     reg = linear_model.LinearRegression()
@@ -47,13 +28,15 @@ def run():
     reg.fit(X_train, y_train)
 
     # regression coefficients
-    if not headless_run: print('Coefficients: \n', reg.coef_)
+    if not headless_run:
+        print('Coefficients: \n', reg.coef_)
 
     # variance score: 1 means perfect prediction
-    variance_score = round(reg.score(X_test, y_test), 3)
+    # variance_score = round(reg.score(X_test, y_test), 3)
+    MSEscore = mean_squared_error(reg.predict(X_test), y_test)
 
     if not headless_run:
-        print('Variance score: {}'.format(variance_score))
+        print('MSE score: {}'.format(MSEscore))
 
         # plot for residual error
         plt.style.use('fivethirtyeight')
@@ -73,7 +56,7 @@ def run():
         plt.title("Residual errors")
         plt.show()
     else:
-        return variance_score
+        return MSEscore
 
 
 if __name__ == "__main__":
