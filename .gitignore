@@ -2,6 +2,14 @@
 .vscode/
 .idea/
 
+#latex
+*.synctex.gz
+*.toc
+*.pdf
+*.out
+*.log
+*.aux
+
 #OSX crap
 .DS_Store
 
