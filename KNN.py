@@ -62,6 +62,12 @@ def run():
     variance_score = round(clf.score(X_test, y_test), 3)
 
     if not headless_run:
+        MSEscore = mean_squared_error(clf.predict(X_test), y_test)
+        MEAEscore = median_absolute_error(clf.predict(X_test), y_test)
+        VarianceScore = explained_variance_score(clf.predict(X_test), y_test)
+        print("Mean squared error", MSEscore)
+        print("Median absolute error", MEAEscore)
+        print("Variance score", VarianceScore)
         print('Variance score: {}'.format(variance_score))
         print("CLF BEST: ")
         print( clf.best_score_)
