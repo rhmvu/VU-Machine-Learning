@@ -5,10 +5,7 @@ from sklearn.metrics import mean_squared_error, median_absolute_error
 from sklearn import linear_model
 from sklearn.model_selection import cross_val_score, train_test_split
 import DataPrep
-from result import Result
-
-# Constants
-TRAIN_DATA_PROPORTION = 0.7
+from sklearn.metrics import mean_squared_error, median_absolute_error, explained_variance_score, r2_score
 
 # Very basic linear clfression model, takes into account all variables
 
@@ -26,8 +23,6 @@ def run():
     X_train, X_test, y_train, y_test = train_test_split(
         train, target, test_size=0.25, random_state=0)
 
-
-
     # create linear clfression object
     clf = linear_model.LinearRegression()
 
@@ -38,18 +33,18 @@ def run():
     if not headless_run:
         print('Coefficients: \n', clf.coef_)
 
-    # variance score: 1 means perfect prediction
+    # Metrics
     variance_score = clf.score(X_test, y_test)
-
     MSEscore = mean_squared_error(clf.predict(X_test), y_test)
-
     MAEscore = median_absolute_error(clf.predict(X_test), y_test)
+    R2score = r2_score(clf.predict(X_test), y_test)
 
     if not headless_run:
         print('Variance score: {}'.format(variance_score))
         # print("CLF best: {}".format(clf.best_score_)) grid search only
         print('MSE score: {}'.format(MSEscore))
         print('MAE score: {}'.format(MAEscore))
+        print('R2 score: {}'.format(R2score))
 
         # plot for residual error
         plt.style.use('fivethirtyeight')
@@ -69,7 +64,8 @@ def run():
         plt.title("Residual errors")
         plt.show()
     else:
-        return Result(variance_score, MSEscore, MAEscore)
+        return [variance_score, MSEscore, MAEscore, R2score]
+
 
 if __name__ == "__main__":
     headless_run = False

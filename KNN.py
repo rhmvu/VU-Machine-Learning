@@ -11,7 +11,6 @@ from IPython.display import display
 import matplotlib.pyplot as plt
 import seaborn as sns
 import DataPrep
-from result import Result
 
 headless_run = True
 
