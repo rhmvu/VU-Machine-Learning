@@ -39,7 +39,6 @@ def run():
 
     model_svm = GridSearchCV(model_svm, parameters, 'neg_mean_squared_error', cv=5)
     model_svm = model_svm.fit(X_train, y_train)
-    rmse_cv(model_svm).mean()  # Why do we need to do this exactly?
 
     # Coefficients not present since we lack a linear model
     # coef = pd.Series(model_svm.coef_, index=X_train.columns)
