@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import LinearRegression, RidgeCV, LassoCV, ElasticNetCV
-from sklearn.metrics import mean_squared_error, make_scorer
+from sklearn.metrics import mean_squared_error, make_scorer, r2_score, median_absolute_error, explained_variance_score
 from scipy.stats import skew
 from IPython.display import display
 import matplotlib.pyplot as plt
@@ -40,14 +40,14 @@ def run():
     MSEscore = mean_squared_error(clf.predict(X_test), y_test)
     MAEscore = median_absolute_error(clf.predict(X_test), y_test)
     VarianceScore = explained_variance_score(clf.predict(X_test), y_test)
-    r2 = r2_score(clf.predict(X_test), y_test)
+    R2score = r2_score(clf.predict(X_test), y_test)
     
     if not headless_run:
 
         print("Mean squared error", MSEscore)
         print("Median absolute error", MAEscore)
         print("Variance score", VarianceScore)
-        print("R2 score", r2)
+        print("R2 score", R2score)
         print('Variance score: {}'.format(variance_score))
         print("CLF BEST: ")
         print(clf.best_score_)
@@ -55,7 +55,7 @@ def run():
         # print(clf.best_index_)
         print('MSESCORE: ')
         print(MSEscore)
-    return Result(variance_score, MSEscore, MAEscore)
+    return [variance_score,MSEscore,MAEscore,R2score]
 
 
 if __name__ == "__main__":

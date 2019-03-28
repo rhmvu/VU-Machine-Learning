@@ -13,7 +13,7 @@ model = {
     "Basic Linear Regression Model": basic_lin_reg,
     "L1 Regularized Regression Model": lin_reg_L1,
     "L2 Regularized Regression Model": lin_reg_L2,
-    #"K Nearest Neighbours (gridsearch)": KNN
+    "K Nearest Neighbours (gridsearch)": KNN
 }
 
 
