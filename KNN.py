@@ -40,12 +40,14 @@ def run():
     MSEscore = mean_squared_error(clf.predict(X_test), y_test)
     MAEscore = median_absolute_error(clf.predict(X_test), y_test)
     VarianceScore = explained_variance_score(clf.predict(X_test), y_test)
-
+    r2 = r2_score(clf.predict(X_test), y_test)
+    
     if not headless_run:
 
         print("Mean squared error", MSEscore)
         print("Median absolute error", MAEscore)
         print("Variance score", VarianceScore)
+        print("R2 score", r2)
         print('Variance score: {}'.format(variance_score))
         print("CLF BEST: ")
         print(clf.best_score_)
