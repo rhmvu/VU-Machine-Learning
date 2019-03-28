@@ -143,7 +143,7 @@ def handle_cat(train):
     return train
 
 
-def prep_data(quiet):
+def prep_data_deprecated(quiet):
     train = pd.read_csv("data/train.csv")
     # remove outliers of GrLivArea
     train = train[train.GrLivArea < 4000]
@@ -200,8 +200,8 @@ def prep_data(quiet):
 
     return train
 
-
-def prep_data_rico(quiet):
+# Formerly prep_data_rico
+def prep_data(quiet):
     # Data preprocessing
     train = pd.read_csv("./data/train.csv")
     train.SalePrice = np.log1p(train.SalePrice)

@@ -33,9 +33,6 @@ def run():
     target = train.SalePrice
     train = train.drop(columns='SalePrice')
 
-    # print(train)
-    numerical_features = train.select_dtypes(exclude=["object"]).columns
-
     X_train, X_test, y_train, y_test = train_test_split(
         train, target, test_size=TEST_SIZE, random_state=0)
 
@@ -50,7 +47,7 @@ def run():
     model_svm = svm.SVR(gamma='scale', cache_size=1000)
     parameters = {'kernel': ['rbf', 'sigmoid', 'linear'], 'C': [0.8, 0.9, 1]}
 
-    #model_svm = GridSearchCV(model_svm, parameters, 'neg_mean_squared_error', cv=5)
+    model_svm = GridSearchCV(model_svm, parameters, 'neg_mean_squared_error', cv=5)
     model_svm = model_svm.fit(X_train, y_train)
     rmse_cv(model_svm).mean()  # Why do we need to do this exactly?
 
@@ -66,9 +63,9 @@ def run():
         MSEscore = mean_squared_error(model_svm.predict(X_test), y_test)
         print(MSEscore)
 
-        # print(model_svm.best_score_)
-        # print(model_svm.best_estimator_)
-        # print(model_svm.best_index_)
+        print(model_svm.best_score_)
+        print(model_svm.best_estimator_)
+        print(model_svm.best_index_)
 
         # Plotting Residuals
         plt.scatter(model_svm.predict(X_train), model_svm.predict(X_train) - y_train,

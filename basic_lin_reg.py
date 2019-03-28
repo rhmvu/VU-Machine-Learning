@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 from scipy.stats import skew
 
 from sklearn import linear_model
+from sklearn.model_selection import cross_val_score, train_test_split
+import DataPrep
 
 # Constants
 TRAIN_DATA_PROPORTION = 0.7
@@ -16,29 +18,15 @@ headless_run = True
 
 def run():
     # Data preprocessing
-    train = pd.read_csv("./data/train.csv")
-    test = pd.read_csv("./data/test.csv")
-    all_data = train.loc[:, 'MSSubClass':'SaleCondition']
+    train = DataPrep.prep_data(headless_run)
+    # Scale data: https://scikit-learn.org/stable/modules/svm.html#tips-on-practical-use
 
-    # log transform skewed numeric features:
-    numeric_feats = all_data.dtypes[all_data.dtypes != "object"].index
+    target = train.SalePrice
+    train = train.drop(columns='SalePrice')
 
-    skewed_feats = train[numeric_feats].apply(lambda x: skew(x.dropna()))
-    skewed_feats = skewed_feats[skewed_feats > 0.75]
-    skewed_feats = skewed_feats.index
+    X_train, X_test, y_train, y_test = train_test_split(
+        train, target, test_size=0.25, random_state=0)
 
-    all_data[skewed_feats] = np.log1p(all_data[skewed_feats])
-
-    all_data = pd.get_dummies(all_data)
-    all_data = all_data.fillna(all_data.mean())
-
-    # Split data
-    treshold = int(len(train) * TRAIN_DATA_PROPORTION)
-    X_train = all_data[0:treshold]
-    y_train = train[0:treshold].SalePrice
-
-    X_test = all_data[treshold:1460]
-    y_test = train[treshold:1460].SalePrice
 
     # create linear regression object
     reg = linear_model.LinearRegression()

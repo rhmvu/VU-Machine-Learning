@@ -16,7 +16,7 @@ headless_run = True
 
 
 def run():
-    train = DataPrep.prep_data_rico(headless_run)
+    train = DataPrep.prep_data(headless_run)
     target = train.SalePrice
     train = train.drop(columns='SalePrice')
     numerical_features = train.select_dtypes(exclude = ["object"]).columns
@@ -38,10 +38,12 @@ def run():
 
     if not headless_run:
         print('Variance score: {}'.format(variance_score))
-        print(clf.best_score_)
-        print(clf.best_estimator_)
-        print(clf.best_index_)
+        print("CLF BEST: ")
+        print( clf.best_score_)
+        #print(clf.best_estimator_)
+        #print(clf.best_index_)
         MSEscore = mean_squared_error(clf.predict(X_test),y_test)
+        print('MSESCORE: ')
         print(MSEscore)
     return variance_score
 

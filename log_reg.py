@@ -2,12 +2,13 @@ import csv
 import numpy as np
 import pandas as pd
 import matplotlib
+import DataPrep
 
 import matplotlib.pyplot as plt
 from scipy.stats import skew
 
-from sklearn.linear_model import Ridge, LassoCV
-from sklearn.model_selection import cross_val_score
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import cross_val_score, train_test_split
 
 # Constants
 TRAIN_DATA_PROPORTION = 0.7
@@ -19,34 +20,15 @@ headless_run = True
 
 def run():
     # Data preprocessing
-    train = pd.read_csv("./data/train.csv")
-    test = pd.read_csv("./data/test.csv")
-    all_data = pd.concat((train.loc[:, 'MSSubClass':'SaleCondition'],
-                        test.loc[:, 'MSSubClass':'SaleCondition']))
+    train = DataPrep.prep_data(headless_run)
+    # Scale data: https://scikit-learn.org/stable/modules/svm.html#tips-on-practical-use
 
-    train.head()
-    matplotlib.rcParams['figure.figsize'] = (24.0, 12.0)
+    target = train.SalePrice
+    train = train.drop(columns='SalePrice')
 
-    train["SalePrice"] = np.log1p(train["SalePrice"])
+    X_train, X_test, y_train, y_test = train_test_split(
+        train, target, test_size=0.25, random_state=0)
 
-    numeric_feats = all_data.dtypes[all_data.dtypes != "object"].index
-
-    skewed_feats = train[numeric_feats].apply(lambda x: skew(x.dropna()))
-    skewed_feats = skewed_feats[skewed_feats > 0.75]
-    skewed_feats = skewed_feats.index
-
-    all_data[skewed_feats] = np.log1p(all_data[skewed_feats])
-
-    all_data = pd.get_dummies(all_data)
-    all_data = all_data.fillna(all_data.mean())
-
-    # Split data
-    treshold = int(len(train) * TRAIN_DATA_PROPORTION)
-    X_train = all_data[0:treshold]
-    y_train = train[0:treshold].SalePrice
-
-    X_test = all_data[treshold:len(train)]
-    y_test = train[treshold:len(train)].SalePrice
 
 
     # Root mean square error
@@ -57,8 +39,8 @@ def run():
 
 
     # Trying L1 regularization
-    model_lasso = LassoCV(alphas=[1, 0.1, 0.001, 0.0005],
-                        cv=5).fit(X_train, y_train)
+    model_lasso = LogisticRegression(random_state=0, solver='lbfgs',
+                             multi_class='multinomial').fit(X_train, y_train)
     rmse_cv(model_lasso).mean()
 
 
