@@ -1,4 +1,4 @@
-class result():
+class Result():
     def __init__(self, score, mean_squared_error, median_absolute_error):
         self.score = score
         self.mean_squared_error = mean_squared_error

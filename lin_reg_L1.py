@@ -3,8 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib
 import DataPrep
-import result as Result
-
+from result import Result
 import matplotlib.pyplot as plt
 from scipy.stats import skew
 from sklearn.model_selection import GridSearchCV
@@ -37,7 +36,6 @@ def run():
                   cv=5)
     # clf = GridSearchCV(clf_plain, parameters, cv = 5)
     clf = clf.fit(X_train, y_train)
-    rmse_cv(clf).mean()
 
     # Lasso gives us an alpha of 0.1231, picks some coefficients and gives the rest a 0 value
     coef = pd.Series(clf.coef_, index=X_train.columns)

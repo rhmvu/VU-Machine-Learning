@@ -1,21 +1,23 @@
 import lin_reg_L2
+import lin_reg_L1
 import basic_lin_reg
 import KNN
 from multiprocessing import Process
-
-# model = {
-#     "Basic Linear Regression Model": basic_lin_reg,
-#     "Advanced Linear Regression Model": lin_reg,
-#     "Support Vector Machine (regression)": svm,
-#     "K Nearest Neighbours": KNN
-# }
+from result import Result
 
 model = {
-    "ridge": lin_reg_L2
+    "Basic Linear Regression Model": basic_lin_reg,
+    "L1 regularized Regression Model": lin_reg_L1,
+    "L2 regularized Regression Model": lin_reg_L2,
+    "K Nearest Neighbours": KNN
 }
 
 def run_model(model_name, model):
-    print('{}\n\t Variance score: {}\n'.format(model_name, model.run().score()))
+    result = model.run()
+    print('{}\n\
+        \tVariance score: {}\n\
+        \tMean Squared Error: {}\n\
+        \tMedian Absolute Error: {}\n'.format(model_name, result.score(), result.mse(), result.mae()))
 
 
 if __name__ == '__main__':

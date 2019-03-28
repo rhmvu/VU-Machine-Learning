@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib
 import DataPrep
-import result as Result
+from result import Result
 import matplotlib.pyplot as plt
 from scipy.stats import skew
 
