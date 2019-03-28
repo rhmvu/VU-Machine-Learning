@@ -1,8 +1,7 @@
-import numpy as np
-import pandas as pd
-
+from sklearn.model_selection import train_test_split
+from DataPrep import prep_data_rico
 import matplotlib.pyplot as plt
-from scipy.stats import skew
+from sklearn.metrics import mean_squared_error
 
 from sklearn import linear_model
 from sklearn.model_selection import cross_val_score, train_test_split
@@ -28,6 +27,7 @@ def run():
         train, target, test_size=0.25, random_state=0)
 
 
+
     # create linear regression object
     reg = linear_model.LinearRegression()
 
@@ -35,13 +35,15 @@ def run():
     reg.fit(X_train, y_train)
 
     # regression coefficients
-    if not headless_run: print('Coefficients: \n', reg.coef_)
+    if not headless_run:
+        print('Coefficients: \n', reg.coef_)
 
     # variance score: 1 means perfect prediction
-    variance_score = round(reg.score(X_test, y_test), 3)
+    # variance_score = round(reg.score(X_test, y_test), 3)
+    MSEscore = mean_squared_error(reg.predict(X_test), y_test)
 
     if not headless_run:
-        print('Variance score: {}'.format(variance_score))
+        print('MSE score: {}'.format(MSEscore))
 
         # plot for residual error
         plt.style.use('fivethirtyeight')
@@ -61,7 +63,7 @@ def run():
         plt.title("Residual errors")
         plt.show()
     else:
-        return variance_score
+        return MSEscore
 
 
 if __name__ == "__main__":
