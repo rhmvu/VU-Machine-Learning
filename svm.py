@@ -10,12 +10,8 @@ from sklearn import svm
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, make_scorer
-
-
 import DataPrep
 
-# Constants
-TEST_SIZE = 0.25
 
 
 # Crappy SVM model
@@ -34,14 +30,8 @@ def run():
     train = train.drop(columns='SalePrice')
 
     X_train, X_test, y_train, y_test = train_test_split(
-        train, target, test_size=TEST_SIZE, random_state=0)
+        train, target, test_size=0.25, random_state=0)
 
-    # Root mean square error
-
-    def rmse_cv(model):
-        rmse = np.sqrt(-cross_val_score(model, X_train, y_train,
-                                        scoring="neg_mean_squared_error", cv=5))
-        return rmse
 
     # Trying SVM using SVR model: https://scikit-learn.org/stable/modules/svm.html
     model_svm = svm.SVR(gamma='scale', cache_size=1000)

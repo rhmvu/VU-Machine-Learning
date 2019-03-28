@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-<<<<<<< HEAD:log_reg.py
 import matplotlib
 import DataPrep
 
@@ -9,15 +8,6 @@ from scipy.stats import skew
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_score, train_test_split
-=======
-from DataPrep import prep_data_rico
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LassoCV
-from sklearn.model_selection import cross_val_score
-from sklearn.metrics import mean_squared_error
-
->>>>>>> 6da3485a85e0bcc9b17958b04e642e66727a364d:lin_reg.py
 
 # Constants
 TRAIN_DATA_PROPORTION = 0.7
