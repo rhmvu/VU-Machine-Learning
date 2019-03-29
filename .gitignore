@@ -3,6 +3,11 @@
 .idea/
 
 #latex
+*.bbl
+*.blg
+*.dvi
+
+
 *.synctex.gz
 *.toc
 *.pdf

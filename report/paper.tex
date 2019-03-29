@@ -1,15 +1,17 @@
 \documentclass[a4paper,11pt]{article}
-
 \usepackage{listings}
 \usepackage{enumerate}
 \usepackage{graphicx}
-\usepackage{hyperref}
+%\usepackage{hyperref}
 \usepackage[font=small,labelfont=bf]{caption}
 \usepackage{geometry}
+\usepackage{wrapfig}
+\usepackage{cite}
+ 
 
 
 \title{House Price Prediction}
-\date{March 30, 2019}
+\date{March 28, 2019}
 \author{Lucas Faijdherbe, Rico Mossinkof, Ewoud Vermeij, Ruben van der Ham\\ and Harsh Khandelwal\\\\
 Group 19\\
 \small Machine Learning\\
@@ -24,82 +26,154 @@ Group 19\\
 \maketitle
 \includegraphics[width=0.8\linewidth]{images/vulogo.png}
 \pagenumbering{gobble} %pagenumbering OFF
+\hfill
+\\
 
+
+\begin{abstract}
+For this research project, 2 approaches are evaluated on their performance of predicting house prices given a set of features. Because the house prices are rising again after a period of decline, it is interesting to know the current value of your house. We are going to predict house prices for houses in Ames, Iowa.
+    In this project we will evaluate two different approaches to estimate house prices: K-Nearest Neighbours and Linear Regression. We used a data set of the Kaggle competition “House Prices: Advanced Regression Techniques”. We performed some data analysis to make this data usable for testing. 
+\end{abstract}
 \end{titlepage}
-\clearpage
+
 
 %Table of contents page
 %\tableofcontents
 %\clearpage
 
-
+\clearpage
 \pagenumbering{arabic} %pagenumbering ON
 
 
-\begin{abstract}
-For this research project, 2 approaches are evaluated on their performance of predicting house prices given a set of features. Because the house prices are rising again after a period of decline, it is interesting to know the current value of your house. We are going to predict house prices for houses in Ames, Iowa.
-    In this project we will evaluate two different approaches to estimate house prices: K-Nearest Neighbours and Linear Regression. We used a data set of the kaggle competition “House Prices: Advanced Regression Techniques”. We performed some data analysis to make this data usable for testing. 
-\end{abstract}
-
 \section{Introduction}
-After the downfall of house prices in the Netherlands during the economic recession, prices are starting to rise again. In some areas the house prices are rising with a tremendous pace. A good example is Amsterdam, where house prices rose with a staggering 20\% in one year [1]. Fluctuations in house prices are not only interesting for potential house owners, but also for investors, which are partial responsible for the upswing in house prices [2]. Given that house prices are such a hot topic in the Netherlands, we are highly motivated to do our research project on house price prediction.
-    Unfortunately we were not able to get a comprehensive dataset representing the value of houses in the Netherlands. Luckily we did came across a Kaggle competition called “House Prices: Advanced Regression Techniques”. The goal of this competition is to predict the house prices given a set of features. The dataset provided for this competition describe residential homes of a small town in Iowa, United States called Ames. We are well aware that a potential model able to predict the house prices of this dataset is unlikely to have the same performance on a dataset of a different residential area. Nonetheless it is a great dataset to use for this research project.
-    There have been several approaches for predicting or evaluating house prices. The hedonic-based regression is an one approach. With hedonic-based methods, relationships between house prices and house characteristics are tried to be identified, and have been utilized in many reports [5][6][7].  Besides hedonic-based regression, there have been several approaches in the machine learning area. Interestingly we found that these approaches are not necessarily complex ones. Use of a decision tree is a relatively simple approach, but can get a descent squared error rate such as 0.885 [3]. It is also shown that an algorithm like RIPPER can outperform slightly more complex algorithms such as Naïve Bayesian and AdaBoost [4]. Therefore we decided to investigate performance among relatively simple algorithms. 
-For this research project we will analyze 2 different machine learning techniques: linear regression and k-nearest neighbours. According to earlier research [12],  k-nearest neighbours (knn) can have some promising results when it comes to house price prediction. Therefore we expect knn to be relatively accurate. For linear regression we could not find any relevant research, so we will try to investigate its performance in this paper. To compare the results we use a baseline model. This baseline predicts every house price with the average of all house prices. Our models should perform better than this baseline model, as the average will not give a very good prediction. 
-This report is structured as follows. In section 2 we will analyze the dataset on the features and elaborate on data preparation. In section 3 and 4 we will discuss each model individually. In the last section we will present the experimental results and concluding remarks on the results. 
+After the downfall of house prices in the Netherlands during the economic recession, prices are starting to rise again. In some areas the house prices are rising with a tremendous pace. A good example is Amsterdam, where house prices rose with a staggering 20\% in one year \cite{couzy_damen_2018}. Fluctuations in house prices are not only interesting for potential house owners, but also for investors, which are partial responsible for the upswing in house prices \cite{couzy_2018}. This makes house price prediction an interesting topic.\\
+
+The data used for the training and testing of the prediction algorithms came from Kaggle.com from a competition called \textit{“House Prices: Advanced Regression Techniques"}. The dataset provided for this competition contains the features of residential homes of a Ames, a small town in Iowa, United States. It has to be noted that a potential model that is able to predict the house prices of this dataset is unlikely to have the same performance on a dataset of a different residential area. Nonetheless it is a great dataset to use for this research. The goal is to be able to have a model that can accurately predict the house prices for this dataset.\\
+
+    There have been several approaches for predicting or evaluating house prices. The hedonic-based regression is an one approach. With hedonic-based methods, relationships between house prices and house characteristics are tried to be identified. This has been utilized in many reports \cite{adair_berry_mcgreal_1996, stevenson_2004, bin_2004}. Besides hedonic-based regression, there have been several approaches in the machine learning area. Interestingly we found that these approaches are not necessarily complex ones. Use of a decision tree is a relatively simple approach, but can get a descent squared error rate such as 0.885 \cite{fan_ong_koh_2006}. It is also shown that an algorithm like RIPPER, a rule-learning algorithm, can outperform slightly more complex algorithms such as Naïve Bayesian and AdaBoost \cite{park_bae_2015}. Therefore this report is focused more on investigating the performance among relatively simple algorithms. \\
+ 
+The focus will be on two different machine learning techniques: linear regression and k-nearest neighbours. According to earlier research \cite{zhao_sun_wang_2014}, k-nearest neighbours (kNN) can have some promising results when it comes to house price prediction. For linear regression no relevant research was found, so this paper will try to investigate its performance. It is expected that kNN will be relatively accurate. To compare the results a baseline model is used. This baseline predicts every house price with the average of all house prices. The models laid out in this report should perform better than this baseline model, as the average will not give a very good prediction. \\
+
+This following of the report is structured as follows. Section 2 will talk about the dataset analysis, and discuss the data preparation. Section 3 will discuss the models individually. Section 4 will present the experimental results and section 5 will conclude remarks on the results. 
+s. 
+
 
 
 \section{Data analysis and preparation}
 %figuur heatmap
+\begin{minipage}{1\linewidth}
+\includegraphics[width=\linewidth]{images/heatmap.png}
+\captionof{figure}{}
+\end{minipage}
 
-In order to get the best performance from our models, we need to analyze the dataset provided and prepare it, such that out models can work optimally with the data. First, we take a closer look at all features to get a good understanding of how all data is distributed, how it is presented (numerical or categorical) and if any data is missing. After that we will elaborate on 
-            
-our data preparation decisions of which we think we get the best results of with our models.
+In order to get the best performance from the machine learning models, the dataset features need to be analyzed and prepared such that the models can work with the data and will be able to make predictions based off of it.\\
+The first section will take a closer look at all features to get a good understanding of how all data is distributed, how it is presented (numerical or categorical) and if any data is missing. The next section will elaborate on the data preparation decisions made in order to get the best results with the models.
+
 
 
 \subsection{Data Analysis}
-The dataset, provided through a kaggle competition, consists of 79 features describing a residential home from the small city of Ames in Iowa, United States. Since the dataset comes from a Kaggle competition, two datasets are provided. One with and one without the sale price of each residential home, so you can submit your model’s performance on the dataset without the sale price. Since we are comparing our own models for this research project, we will only use the dataset including the sale price. This dataset consists of 1460 entries. 
 
-Since sale price is our target to predict, we investigate how the sale  price relates to other properties. As we can see in figure 2, the data looks like a right skewed normal distribution. This means that most of the sale prices lie around 180.000 dollars. This is the mean 
+\begin{minipage}{0.6\linewidth}
+\includegraphics[width=\linewidth]{images/distribution.png}
+\captionof{figure}{}
+\end{minipage}
+\begin{minipage}{0.39\linewidth}
+The dataset provided through the Kaggle competition consists of 79 features describing the residential homes from Ames, Iowa. The Kaggle competition provided two datasets: one to train on and one to predict from. However, the prediction data set does not include the actual house prices. It is not possible to use this dataset, since there will be no way to check if the model prediction performed well on this data. Only the ‘train’ dataset will be used, which will be split randomly in a train and test set. This dataset consists of 1460 entries.
+\end{minipage}
+\\
+\\
+Since sale price is the target to predict, let us look how the sale price relates to other properties. Figure 2 is a distribution plot that shows that the sale price looks like a right skewed normal distribution. Most of the sale prices lie around 180.921 dollars. This is the mean of the data and this will be used for the baseline.\\
 
-    In figure 1 shown above, we can see a heatmap which shows the correlation between 40 of the features, including the sale price. This can be very valuable information. Features with little or close to zero correlation with respect to the sale price could be left out from training a model, since they do not say much about the sale price. On the other side, features with high correlation with the sale price are valuable. It can be in our favor to put the emphasis on these features when training our models. We can achieve that to for example create new features with the features having high correlation with the sale price.
-    Figure 2 shows a table of the six features having the highest fraction of missing values. In some situations in can be in our favor to delete the rows missing value(s) for one or more features. This is in our situation not a valuable option since 99.5\% of the rows have no value for the pool quality. 
+Figure 1 shows a heatmap which shows the correlation between 40 of the features, including the sale price. This can be very valuable information. Features with little or close to zero correlation with respect to the sale price could be left out from training a model, since they do not say much about the sale price. On the other side, features with high correlation with the sale price are valuable. Putting the emphasis on these features when training the models can be meaningful. \\
 
+
+\begin{wraptable}{l}{0.5\linewidth}
+\centering
+
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Feature} & \textbf{Percent missing} \\ \hline
+PoolQC           & 0.995205                 \\ \hline
+MiscFeature      & 0.963014                 \\ \hline
+Alley            & 0.937671                 \\ \hline
+Fence            & 0.807534                 \\ \hline
+FireplaceQu      & 0.472603                 \\ \hline
+LotFrontage      & 0.177397                 \\ \hline
+GarageCond       & 0.055479                 \\ \hline
+\end{tabular}
+
+
+\captionof{figure}{}
+
+\end{wraptable}
+
+Figure 3 shows a table of the six features having the highest fraction of missing values. In some situations it can be in helpful to delete the rows containing missing value(s) for one or more features. In this situation, this is not a viable option since 99.5\% of the rows have no value for the pool quality.
+
+\clearpage
 \subsection{Data Preperation}
-To prepare our data for our models, we take a number of steps that will enhance performance on most regression models. First we performed a log transformation on the sale price, such that errors in predicting expensive errors will affect the result equally. For the categorical features we filled in the entries containing NA (Not available). For examples, if the feature “central air conditioning” has the value NA, we assumed it values is NO, since the only two possibilities are YES or NO. Or when the feature “kitchen quality” has the value NA, we gave it the value TY (typical). We also transformed some numerical features which were actually categorical features to categorical features. Some categorical features contain information which are actually in order. For example, garage quality from poor to excellent. We changed those features in numerical ones from low to high.
-    Next, we handled missing values for the numerical features by taking the mean as replacement. We also applied a log transformation on the skewed numerical features, to make them normal distributed. For the categorical features, we applied one hot encoding, such only numerical features are in the features space. Finally, we plotted the correlation between the features and the sale price. After One Hot coding, we took the 80 highest correlated features with respect to the sale price and discarded the others in our training set. Because the meaningless variables got discarded, the models perform better. They only base their decision on the features that actually matter.
+In order to make the data useable for the models, some enhancements need to be made. Since the sale price data was somewhat skewed, log transformation was performed in order to normalise it. For categorical features that missed entries (e.g. entries containing NA), the entries were filled. As an example, for the feature \textit{"central air conditioning"}, all the missing entries were assumed to a NO, since there are only two possibilities, a YES and a NO. Some categorical features containing numerical values were changed to numerical features. An example is garage quality, where the conditions ranged from poor to excellent. These can be easily changed into numerical features. However, these changes do not always work out well so in some cases the numerical features had to be changed back to categorical features.\\
+
+Next, missing values for numerical features were handled by taking the mean of the feature as a replacement. The numerical features that were skewed were also log transformed, in order to normalize them. For categorical features one-hot coding was applied, in order to only have numerical features in the feature space. In the end, the correlation between features and sale price was plot again. The 80 highest correlated features with respect to the sale price were taken. The other features were discarded. These discarded features were the most ‘meaningless’, so the model should perform better since the decisions will be based on more highly correlated features. 
 
 
+\clearpage
 \section{Evaluated Models}
 \subsection{Linear Models}
-Linear Regression can model all the input variables to the house price, and can make predictions based of this model. Linear Regression will try to find the best fitting line for the model. To help fit the model, we performed regularization. This is a technique to reduce the magnitude of the coefficients, in order to lessen the impact of some very high coefficients on the model. This can help against overfitting. We looked at both LASSO (LL(1)) [9] and Ridge (LL(2)) [10] regularization, but opted to go for LASSO since it performed slightly better on our variables. What LASSO does is add a penalty term that changes depending on the alpha value. The higher the alpha, the higher the penalty and the more the variables are impacted. Ridge does this as well, but LASSO is a bit more aggressive, because even for small alphas, a lot of variables will be reduced to 0. This is called feature selection.  The LASSO regularization technique removed 118 features from our model. 
+Linear Regression models all the input variables to the house price, and can make predictions based of this model. Linear Regression will try to find the best fitting line for the model. We performed data regularization to fit the model better. This is a technique to reduce the magnitude of the coefficients, in order to modularize the impact of some very high and sporadic coefficients on the model. Soothing the effect of outliers, through regularization, also helps to prevent overfitting.\\
+
+Three variants of linear regression were performed. One with LASSO (LL(1)) \cite{fonti} regularization, one with Ridge (LL(2)) \cite{nie_huang_cai_ding} regularization, and one without any regularization. The LASSO (Least Absolute Shrinkage and Selection Operator) is a regression method that involves penalizing the absolute size of the regression coefficients. By constraining the sum of the absolute values of the estimates, some of the parameter estimates tend to be exactly zero. As the penalty gets larger, more estimates are shrunk towards zero. Ridge regression adds “squared magnitude” of coefficient as penalty term to the loss function.\\
+
+LASSO was preferred since it performed slightly better on the variables provided. It added convenience in some automatic feature/variable selection. Furthermore, when dealing with highly correlated predictors, standard regression usually has regression coefficients that are 'too large', LASSO circumvents this. LASSO also helped in removal of less important features. The LASSO regularization technique removed 118 features from our model.
+
 
 \subsection{K-nearest neighbours}
-K-nearest neighbours (KNN) is a simple, straightforward, lazy classifier. This classifier determines a certain point by looking at the K nearest points, which have been already classified. KNN can be used for classification and regression. In this project we will use the regression variant, where KNN looks at his K closest neighbours and takes the mean of the sale price of those neighbours to determine the price. To retrieve the best model, we need to determine K for which it will perform best. Picking a low K tends to overfit the model. Picking a high K will increase bias and lowers variance. A rule of thumb can be used to determine K, which isnin which n is the size of the dataset [8].
-For our research we used grid search [11] in combination with K-fold cross validation. In this way we can efficiently look for the hyperparameters of the best performing model. We will use a 4 fold cross validation, 1 group as validation set and the other 3 groups as training set. A larger fold would not be feasible, because we only have 1460 data entries. We will run the grid search algorithm with different ranges for K (of the number of neighbours). Among the different ranges we will elaborate on the performances, which will be measured with the mean squared error. 
+k-nearest neighbours (kNN) is a simple, straightforward, lazy classifier. This classifier determines a certain point by looking at the k nearest points, which have been already classified. kNN can be used for classification and regression. For the house price prediction a regression variant is used, where kNN looks at his k closest neighbours and takes the mean of the sale price of those neighbours to determine the price. To retrieve the best model, the k for for which the model will perform best needs to be determined. Picking a low k tends to overfit the model. Picking a high k will increase bias and lowers variance. A rule of thumb can be used to determine k, which is $\sqrt{n}$ in which n is the size of the dataset \cite{james_witten_hastie_tibshirani_2013}.\\
+To determine the best model, grid search \cite{bergstra_bengio_2012} was used, in combination with k-fold cross validation. This makes an efficient look for the hyperparameters of the best performing model possible. A 4-fold cross validation was used, where 3 groups are the training set, and 1 group is the validation set. A larger fold would not be feasible, since there are only 1460 data entries. The grid search algorithm will be run with different ranges for k.
+	 
 
-
-\section{Results and conclusion}
-To compare the models performance of KNN and Linear Regression we make use of four different metrics: Mean Squared Error (MSE), Median Absolute Error (MAE), $R^2$ and Variance Score (VS). With MSE we subtract each true value from the predicted value, square it and sum them up to one value. This value get divided by the number of samples used for this test. The lower the score, the better. Mathematical notation:
+\clearpage
+\section{Results}
+To compare the models performance of kNN and Linear Regression four different metrics are used: Mean Squared Error (MSE), Median Absolute Error (MAE), $r^2$ and Variance Score (VS). MSE subtracts each true value from the predicted value, squares it and sums them up to one value. This value gets divided by the number of samples used for this test. The lower the score, the better. Mathematical notation:
 \\
+
+\begin{center}
+$MSE(xPred,yTrue)=\frac{1}{n} \sum\limits_{i=0}^n(yTrue_i-xPred_i)^2$
+\end{center}
+
+$R^2$ can measure how well future samples are likely to be predicted by the model. The higher the score, the better. Mathematical notation:
+
+
+\begin{center}
+$R^2(xPred,yTrue) = 1- \frac{\sum\limits_{i=0}^n-1 (yTrue_i-xPred_i)^2}{\sum\limits_{i=0}^n-1 (yTrue_i-X)^2}$
+
+with: $x = \frac{1}{n}  \sum\limits_{i=0}^n yTrue_i$
+\end{center}
+
+MAE is used because it is very helpful against outliers. It takes the median of all absolute differences between the true value and the prediction. The lower score, the better. Mathematical notation:
+
 
 \begin{center}
 $MAE(xPred,yTrue)=median(|ytrue_1-xPred_1|,....,|yTrue_n-xPred_n|)$
 \end{center}
 
-With VS, we mean the explained variance score. This score measures the proportion to which the model accounts for the variation of the dataset. The higher the score, the better. Mathematical notation:
+VS, means the explained variance score. This score measures the proportion to which the model accounts for the variation of the dataset. The higher the score, the better. Mathematical notation:
 \\
 
 \begin{center}
 $VS(xPred,yTrue)=\frac{1-Variance\{yTrue-xPred\}}{Variance\{yTrue\}}$
 \end{center}
 
-With these four metrics we will evaluate the KNN models with the Linear models in the next section.
+These four metrics will evaluate the kNN models and the linear models in the next section.
+
 
 \subsection{Results}
-In the table below we can see the results of KNN for different values of K. The first thing we notice is the relatively small difference in performance for different values of K. In section 3.2 we also stated that a good value for K is $\sqrt{n}$ with n the number of samples in the dataset. $\sqrt{1460}\approx38$, but as we can see, high values of K give a slightly worse performance compared to lower values of K. We suspect the small performance difference being caused by the distribution of the house prices. As we saw in section 2.1, most houses have a value between 100,000 and 200,000. For lower K we have a better score, because a higher K will predict closer to the mean of all house prices.
+In the table below we can see the results of kNN for different values of K. The first thing we notice is the relatively small difference in performance for different values of K. In section 3.2 we also stated that a good value for K is $\sqrt{n}$ with n the number of samples in the dataset. $\sqrt{1460}\approx38$, but as we can see, high values of K give a slightly worse performance compared to lower values of K. \\
+The small performance difference may be caused by the distribution of the house prices. As seen in Section 2.1, most houses have a value between 100,000 and 200,000. A lower k might have a better score, because a higher k will predict values closer to the mean of all house prices. From our testing, we can see that the best k is 3. It has the lowest MSE, the highest $R^2$ and the highest variance score. 
+The table shows that there is not a very big difference in error rates for different k’s if MSE and MAE are used. There is more difference in error rates for $R^2$ and the Variance Score. This might have to do with the fact that for larger k’s, the model is less susceptible to outliers. 
 
-\clearpage
+
+
+%\clearpage
 \begin{table}[]
 \centering
 \begin{tabular}{|l|l|l|l|l|}
@@ -114,8 +188,12 @@ In the table below we can see the results of KNN for different values of K. The 
 30         & 0.03525      & 0.61532     & 0.09076      & 0.62779                 \\ \hline
 40         & 0.03619      & 0.58598     & 0.09773      & 0.59754                 \\ \hline
 \end{tabular}
-\caption{KNN hyperparameter K performance}
+\caption{kNN hyperparameter K performance}
+\begin{flushleft}
+Between the linear models, there is no significant performance difference. The slight performance gain from basic upto L2 regularization regression models is neglectable. Since L1 and L2 are regularization techniques that will reduce overfitting, judging from the minimal difference with these models and the basic model, it is likely that the linear model is not overfitting or underfitting. 
+\end{flushleft}
 \end{table}
+
 
 \begin{table}[]
 \begin{tabular}{|l|l|l|l|l|}
@@ -124,79 +202,39 @@ In the table below we can see the results of KNN for different values of K. The 
 Basic Linear Regression Model   & 0.020639                    & 0.868137    & 0.068745                       & 0.861218                \\ \hline
 L1 Regularized Regression Model & 0.020402                    & 0.868323    & 0.071037                       & 0.862814                \\ \hline
 L2 Regularized Regression Model & 0.020372                    & 0.869291    & 0.06878                        & 0.863015                \\ \hline
-KNN (gridsearch) with K = 3     & 0.03293                     & 0.73254     & 0.10567                        & 0.7379                  \\ \hline
+kNN (gridsearch) with K = 3     & 0.03293                     & 0.73254     & 0.10567                        & 0.7379                  \\ \hline
 Mean house price                & 0.15454                     & -4.89788    & 0.26358                        & -4.71305                \\ \hline
 \end{tabular}
 \caption{Comparison of models}
 \end{table}
 
-
-
-
-
-
-
-\section{Conclusion}
-Our baseline has some divergent results. Both $R^2$ and the variance are negative scores. 
-All of our models have a significantly better performance than the baseline model. This means that they have actually learned how to predict the prices instead of just randomly guessing it. Inbetween the models there are some interesting relations. There doesn’t seem to be much difference between the linear models with and without regularization. This may be the case because the linear model is not overfitting. In this case regularization would indeed not be very useful. It is also possible that our model is overfitting, but the predicted prices are still quite accurate. Because most of the house prices lie in the same price range, it could still predict most of the prices around their actual price. 
-Overall, the linear regression models seem to perform slightly better than the knn model.  Because most of our data has a sale price around the mean, linear regression actually predicts the sale price quite accurate. Knn still has a good performance compared to the baseline,  with approximately 5 times less (mean squared) error.
-
-
-
-
-
-
-\section*{LATEX EXAMPLE STUFF LEAVE IT HERE}
-
-
 \begin{center}
 \begin{minipage}{0.49\linewidth}
-\includegraphics[width=\linewidth]{images/barplotRand.png}
-\captionof{figure}{Part of games won against Rand}
+\includegraphics[width=\linewidth]{images/errors.jpg}
+\captionof{figure}{Error rates}
 \end{minipage}
 \hfill
 \begin{minipage}{0.49\linewidth}
-\includegraphics[width=\linewidth]{images/barplotBully.png}
-\captionof{figure}{Part of games won against Bully}
+\includegraphics[width=\linewidth]{images/scores.jpg}
+\captionof{figure}{$R^2$ and variance score}
 \end{minipage}
-      \\ %extra line for space
-\begin{minipage}{0.49\linewidth}
-\includegraphics[width=\linewidth]{images/barplotRdeep.png}
-\captionof{figure}{Part of games won against Rdeep (mind the different Y-axis)}
-\end{minipage}
+      \hfill %extra line for space
 \end{center}
-\clearpage
-\section{Findings}
-
-\subsection*{Against Rand}
-There are a few notable things when comparing the performance of our bots. Firstly, while both ml\_minimal and ml\_stripped performed slightly worse that the stock ml bot, as was expected, ml\_stripped actually performs worse than ml\_minimal. Despite the latter of the two having the smallest feature set. However, the differences are below 5\% and therefore within the margin of error. Secondly, stripping away most of the feature set in ml\_minimal only led to a relatively small performance loss. Lastly, ml\_enriched and ml\_advanced perform, respectively, a little better and a little worse when compared to the stock ml bot. However, when we combined the feature sets of these two bots in ml\_combined, it led to an performance increase of almost 10\% compared to the stock ml bot. In short, the bots with the larger feature spaces did perform relatively better against rand.
-
-\subsection*{Against Bully}
-
-Notable for the results of the tournaments against the bully bot are the following points. First of all, the stock ml bot performed the best of all bots. In figure 2 of section 5, this is clearly noticable. Secondly,  ml\_stripped and ml\_minimal peformed comparable to ml bot. Therefore, we may observe that smaller feature spaces seem to not cause a heavy impact on the performance of a learning bot. The last and most remarkable finding is the peformance of the ml\_enriched and ml\_combined bots. All bots with larger feature spaces peformed worse than ml bot. However, ml\_enriched and ml\_combined performed the worst with a performance decrease of approximately 12\%.
 
 
-\subsection*{Against Rdeep}
-The \textit{standard deviation} of the mean of the 9 tournaments for each bot against rdeep is 0.0280. This number is the lowest of all the non-learning bots and is clearly confirmed by the barplot in figure 3. Rdeep won the majority of the games, which results in a low diversity of winning scores among the learning bots. The worst performer was, surprisingly, the stock ml bot. Although the variance in the winning scores is low, the ml\_minimal bot performs clearly better against rdeep. Compared to the other learning bots, ml\_minimal performs approximately 25\% better. Also remarkable is the relatively low score of ml\_combined with the most features of all. The other bots containing a larger feature space did perform slightly better than the stock ml bot, although this is all within the margin of error.  Summarized, the bots with the smallest feature spaces seemed to perform the best against rdeep.
+
 
 \section{Conclusion}
-In this paper, we set out to find performance improvements in machine-learning bots  playing the game of Schnapsen when using different feature spaces by comparing multiple machine learning bots, each bot equipped with its own extended or narrowed feature space. We observed that with all the different models we tried, there is not a huge performance increase. Overall, most bots even perform a bit worse than the default ml-bot. Only in the games against rdeep, all bots performed better than the default-ml, with a quite big margin. Even then, the bots with a narrowed feature space perform better than the bots with an extended feature space. This gives rise to the question: Does extending the feature space in this kind of machine learning bot actually have benefits? It seems that after this research, more questions have risen than have been answered. We cannot really say that we have found an overall performance increase in any bot, only performance increase against specific bots. Unfortunately, we cannot answer our research question now, because of the limited time we had. There seems to be no findable correlation between feature space and game performance in the data. We did see some improvement over the default ml-bot, but only in very small amounts. In future research, we would hold way more tournaments with more bots, looking at features one on one, to see which improve and which decrease performance.
+The baseline has some divergent results. Both $R^2$ and VS are negative scores. This is caused by the arbitrarily prediction of the baseline for each sample. Looking at the numerator, it shows that this number can get quite large when a prediction is far off the true value. This value is then deducted from 1, which causes it to be a negative value. The same applies to the VS.\\
+
+All of the models have a significantly better performance than the baseline model. This means that they have actually learned how to predict the prices instead of just randomly guessing. In between the models there are some interesting relations. There doesn’t seem to be much difference between the linear models with and without regularization. This may be the case because the linear model is not overfitting. In this case regularization would not be very useful. It is also possible that the model is overfitting, but the predicted prices are still quite accurate. Because most of the house prices lie in the same price range, it could still predict most of the prices around their actual price. \\
+
+Overall, the linear regression models seem to perform slightly better than the kNN model. Because most of the data has a sale price around the mean, linear regression actually predicts the sale price quite accurate. kNN still has a good performance compared to the baseline, with approximately 5 times less (mean squared) error. 
 
 
-\section{References}
-
-\begin{enumerate}
-\item What's The Difference Between Strong and Weak AI?, \url{http://humanparagon.com/strong-and-weak-ai/}.
-
-\item Schlobach, S.: Intelligent Systems 2018 L4P2 More on Informed Search, \url{https://www.youtube.com/watch?v=nFfjcGKziQE}.
-
-\item Chandrayan, P.: Machine Learning Part 3 : Logistic Regression – Towards Data Science, \url{https://towardsdatascience.com/machine-learning-part-3-logistics-regression-9d890928680f}.
-
-\item Overfitting, \url{https://en.wikipedia.org/wiki/Overfitting}.\\
-
-\end{enumerate}
-
-
-
+%references page
+\clearpage
+\bibliographystyle{plain}
+\bibliography{references}
 
 \end{document}
