@@ -1,5 +1,5 @@
 \documentclass[a4paper,11pt]{article}
-\usepackage{amsmath}
+
 \usepackage{listings}
 \usepackage{enumerate}
 \usepackage{graphicx}
@@ -11,47 +11,63 @@
 \title{House Price Prediction}
 \date{March 30, 2019}
 \author{Lucas Faijdherbe, Rico Mossinkof, Ewoud Vermeij, Ruben van der Ham\\ and Harsh Khandelwal\\\\
+Group 19\\
 \small Machine Learning\\
 \small Vrije Universiteit Amsterdam}
 
 \begin{document}
+
+
+\begin{titlepage}
+
+\centering
 \maketitle
+\includegraphics[width=0.8\linewidth]{images/vulogo.png}
+\pagenumbering{gobble} %pagenumbering OFF
+
+\end{titlepage}
+\clearpage
+
+%Table of contents page
+%\tableofcontents
+%\clearpage
+
 
 \pagenumbering{arabic} %pagenumbering ON
 
 
 \begin{abstract}
-The aim of this report is to predict the house prices for houses in Ames, Iowa. House price predictions are made using a dataset which includes 79 features per house. Two different classes of machine learning models will be used, k-nearest neighbours and linear regression. Our results show that there is only a small difference between the performance of the k-NN and the linear regression. Both perform better than the baseline model, which is a random predictor. As the difference between the linear regression and k-NN is minimal, we cannot conclude that there is a model that is better in the prediction of house prices. Future research could focus on a creating more versions of these models to compare the performance.
+For this research project, 2 approaches are evaluated on their performance of predicting house prices given a set of features. Because the house prices are rising again after a period of decline, it is interesting to know the current value of your house. We are going to predict house prices for houses in Ames, Iowa.
+    In this project we will evaluate two different approaches to estimate house prices: K-Nearest Neighbours and Linear Regression. We used a data set of the kaggle competition “House Prices: Advanced Regression Techniques”. We performed some data analysis to make this data usable for testing. 
 \end{abstract}
 
 \section{Introduction}
-After the downfall of house prices in the Netherlands during the economic recession, prices are starting to rise again. In some areas the house prices are rising with a tremendous pace. A good example is Amsterdam, where house prices rose with a staggering 20\% in one year [1]. Fluctuations in house prices are not only interesting for potential house owners, but also for investors, which are partial responsible for the upswing in house prices [2]. This makes house price prediction an interesting topic. \\ 
-\indent The data used for the training and testing of the prediction algorithms came from kaggle.com from a competition called “House Prices: Advanced Regression Techniques”. The dataset provided for this competition contains the features of residential homes of Ames, a small town in Iowa, United States. It has to be noted that a potential model that is able to predict the house prices of this dataset is unlikely to have the same performance on a dataset of a different residential area. Nonetheless it is a great dataset to use for this research. The goal is to be able to have a model that can accurately predict the house prices for this dataset. \\
-\indent There have been several approaches for predicting or evaluating house prices. The hedonic-based regression is one approach. With hedonic-based methods, relationships between house prices and house characteristics are tried to be identified. This has been utilized in many reports [5][6][7].  Besides hedonic-based regression, there have been several approaches in the machine learning area. Interestingly we found that these approaches are not necessarily complex ones. Use of a decision tree is a relatively simple approach, but can get a descent squared error rate such as 0.885 [3]. It is also shown that an algorithm like RIPPER, a rule-learning algorithm, can outperform slightly more complex algorithms such as Naïve Bayesian and AdaBoost [4]. Therefore this report is focused more on investigating the performance among relatively simple algorithms.  \\ 
-\indent The focus will be on two different machine learning techniques: linear regression and k-nearest neighbours. According to earlier research [12],  k-nearest neighbours (k-NN) can have some promising results when it comes to house price prediction. For linear regression no relevant research was found, so this paper will try to investigate its performance. It is expected that k-NN will be relatively accurate. To compare the results a baseline model is used. This baseline predicts every house price with the average of all house prices. The models laid out in this report should perform better than this baseline model, as the average will not give a very good prediction. \\
-\indent The following of the report is structured as follows. Section 2 will talk about the analysing of the dataset, and discuss the data preparation. Section 3 will discuss the models individually. Section 4 will present the experimental results and concluding remarks on the results. 
+After the downfall of house prices in the Netherlands during the economic recession, prices are starting to rise again. In some areas the house prices are rising with a tremendous pace. A good example is Amsterdam, where house prices rose with a staggering 20\% in one year [1]. Fluctuations in house prices are not only interesting for potential house owners, but also for investors, which are partial responsible for the upswing in house prices [2]. Given that house prices are such a hot topic in the Netherlands, we are highly motivated to do our research project on house price prediction.
+    Unfortunately we were not able to get a comprehensive dataset representing the value of houses in the Netherlands. Luckily we did came across a Kaggle competition called “House Prices: Advanced Regression Techniques”. The goal of this competition is to predict the house prices given a set of features. The dataset provided for this competition describe residential homes of a small town in Iowa, United States called Ames. We are well aware that a potential model able to predict the house prices of this dataset is unlikely to have the same performance on a dataset of a different residential area. Nonetheless it is a great dataset to use for this research project.
+    There have been several approaches for predicting or evaluating house prices. The hedonic-based regression is an one approach. With hedonic-based methods, relationships between house prices and house characteristics are tried to be identified, and have been utilized in many reports [5][6][7].  Besides hedonic-based regression, there have been several approaches in the machine learning area. Interestingly we found that these approaches are not necessarily complex ones. Use of a decision tree is a relatively simple approach, but can get a descent squared error rate such as 0.885 [3]. It is also shown that an algorithm like RIPPER can outperform slightly more complex algorithms such as Naïve Bayesian and AdaBoost [4]. Therefore we decided to investigate performance among relatively simple algorithms. 
+For this research project we will analyze 2 different machine learning techniques: linear regression and k-nearest neighbours. According to earlier research [12],  k-nearest neighbours (knn) can have some promising results when it comes to house price prediction. Therefore we expect knn to be relatively accurate. For linear regression we could not find any relevant research, so we will try to investigate its performance in this paper. To compare the results we use a baseline model. This baseline predicts every house price with the average of all house prices. Our models should perform better than this baseline model, as the average will not give a very good prediction. 
+This report is structured as follows. In section 2 we will analyze the dataset on the features and elaborate on data preparation. In section 3 and 4 we will discuss each model individually. In the last section we will present the experimental results and concluding remarks on the results. 
 
 
 \section{Data analysis and preparation}
-In order to get the best performance from the machine learning models, the dataset features need to be analysed and prepared such that the models can work with the data and will be able to make predictions based off of it. \\
-\indent The first section will take a closer look at all features to get a good understanding of how all data is distributed, how it is presented (numerical or categorical) and if any data is missing. The next section will elaborate on the data preparation decisions made in order to get the best results with the models.
+%figuur heatmap
+
+In order to get the best performance from our models, we need to analyze the dataset provided and prepare it, such that out models can work optimally with the data. First, we take a closer look at all features to get a good understanding of how all data is distributed, how it is presented (numerical or categorical) and if any data is missing. After that we will elaborate on 
+            
+our data preparation decisions of which we think we get the best results of with our models.
 
 
 \subsection{Data Analysis}
-The dataset provided through the kaggle competition consists of 79 features describing the residential homes from Ames, Iowa. The kaggle competition provided two datasets: one to train on and one to predict from. However, the prediction data set does not include the actual house prices. It is not possible to use this dataset, since there will be no way to check if the model prediction performed well on this data. Only the ‘train’ dataset will be used, which will be split randomly in a train and test set. This dataset consists of 1460 entries. \\
-%figuur sale price
-Since sale price is the target to predict, let us look how the sale price relates to other properties. Figure 1 shows that the sale price looks like a right skewed normal distribution. Most of the sale prices lie around 180.921 dollars. This is the mean of the data and this will be used for the baseline. \\
-%figuur heatmap
-Figure 2 shows a heatmap which shows the correlation between 40 of the features, including the sale price. This can be very valuable information. Features with little or close to zero correlation with respect to the sale price could be left out from training a model, since they do not say much about the sale price. On the other side, features with high correlation with the sale price are valuable. Putting the emphasis on these features when training the models can be meaningful. //
+The dataset, provided through a kaggle competition, consists of 79 features describing a residential home from the small city of Ames in Iowa, United States. Since the dataset comes from a Kaggle competition, two datasets are provided. One with and one without the sale price of each residential home, so you can submit your model’s performance on the dataset without the sale price. Since we are comparing our own models for this research project, we will only use the dataset including the sale price. This dataset consists of 1460 entries. 
 
-Figure 3 shows a table of the six features having the highest fraction of missing values. In some situations it can be in helpful to delete the rows containing missing value(s) for one or more features. In this situation, this is not a viable option since 99.5\% of the rows have no value for the pool quality.
+Since sale price is our target to predict, we investigate how the sale  price relates to other properties. As we can see in figure 2, the data looks like a right skewed normal distribution. This means that most of the sale prices lie around 180.000 dollars. This is the mean 
 
-%figuur 3 feature percent missing
-
+    In figure 1 shown above, we can see a heatmap which shows the correlation between 40 of the features, including the sale price. This can be very valuable information. Features with little or close to zero correlation with respect to the sale price could be left out from training a model, since they do not say much about the sale price. On the other side, features with high correlation with the sale price are valuable. It can be in our favor to put the emphasis on these features when training our models. We can achieve that to for example create new features with the features having high correlation with the sale price.
+    Figure 2 shows a table of the six features having the highest fraction of missing values. In some situations in can be in our favor to delete the rows missing value(s) for one or more features. This is in our situation not a valuable option since 99.5\% of the rows have no value for the pool quality. 
 
 \subsection{Data Preperation}
-In order to make the data useable for the models, some enhancements need to be made. Since the sale price data was somewhat skewed, log transformation was performed in order to normalise it. For categorical features that missed entries (e.g. entries containing NA), the entries were filled. As an example, for the feature “central air conditioning”, all the missing entries were assumed to a NO, since there are only two possibilities, a YES and a NO. Some categorical features containing numerical values were changed to numerical features. An example is garage quality, where the conditions ranged from poor to excellent. These can be easily changed into numerical features. However, these changes do not always work out well so in some cases the numerical features had to be changed back to categorical features. \\
-\indent Next, missing values for numerical features were handled by taking the mean of the feature as a replacement. The numerical features that were skewed were also log transformed, in order to normalise them. For categorical features one-hot coding was applied, in order to only have numerical features in the feature space. In the end, the correlation between features and sale price was plot again. The 80 highest correlated features with respect to the sale price were taken. The other features were discarded. These discarded features were the most ‘meaningless’, so the model should perform better since the decisions will be based on more highly correlated features. 
+To prepare our data for our models, we take a number of steps that will enhance performance on most regression models. First we performed a log transformation on the sale price, such that errors in predicting expensive errors will affect the result equally. For the categorical features we filled in the entries containing NA (Not available). For examples, if the feature “central air conditioning” has the value NA, we assumed it values is NO, since the only two possibilities are YES or NO. Or when the feature “kitchen quality” has the value NA, we gave it the value TY (typical). We also transformed some numerical features which were actually categorical features to categorical features. Some categorical features contain information which are actually in order. For example, garage quality from poor to excellent. We changed those features in numerical ones from low to high.
+    Next, we handled missing values for the numerical features by taking the mean as replacement. We also applied a log transformation on the skewed numerical features, to make them normal distributed. For the categorical features, we applied one hot encoding, such only numerical features are in the features space. Finally, we plotted the correlation between the features and the sale price. After One Hot coding, we took the 80 highest correlated features with respect to the sale price and discarded the others in our training set. Because the meaningless variables got discarded, the models perform better. They only base their decision on the features that actually matter.
 
 
 \section{Evaluated Models}
@@ -59,11 +75,12 @@ In order to make the data useable for the models, some enhancements need to be m
 Linear Regression can model all the input variables to the house price, and can make predictions based of this model. Linear Regression will try to find the best fitting line for the model. To help fit the model, we performed regularization. This is a technique to reduce the magnitude of the coefficients, in order to lessen the impact of some very high coefficients on the model. This can help against overfitting. We looked at both LASSO (LL(1)) [9] and Ridge (LL(2)) [10] regularization, but opted to go for LASSO since it performed slightly better on our variables. What LASSO does is add a penalty term that changes depending on the alpha value. The higher the alpha, the higher the penalty and the more the variables are impacted. Ridge does this as well, but LASSO is a bit more aggressive, because even for small alphas, a lot of variables will be reduced to 0. This is called feature selection.  The LASSO regularization technique removed 118 features from our model. 
 
 \subsection{K-nearest neighbours}
-K-nearest neighbours (k-NN) is a simple, straightforward, lazy classifier. This classifier determines a certain point by looking at the k nearest points, which have been already classified. k-NN can be used for classification and regression. For the house price prediction a regression variant is used, where k-NN looks at his k closest neighbours and takes the mean of the sale price of those neighbours to determine the price. To retrieve the best model, the k for for which the model will perform best needs to be determined. Picking a low k tends to overfit the model. Picking a high k will increase bias and lowers variance. A rule of thumb can be used to determine k, which is $\sqrt{n}$ where n is the size of the dataset [8]. \\
-\indent To determine the best model, grid search [11] was used, in combination with k-fold cross validation. This makes an efficient look for the hyperparameters of the best performing model possible. A 4-fold cross validation was used, where 3 groups are the training set, and 1 group is the validation set. A larger fold would not be feasible, since there are only 1460 data entries. The grid search algorithm will be run with different ranges for k. Section 4 will elaborate on the performances of different k’s, which will be measured with the mean squared error. 
+K-nearest neighbours (KNN) is a simple, straightforward, lazy classifier. This classifier determines a certain point by looking at the K nearest points, which have been already classified. KNN can be used for classification and regression. In this project we will use the regression variant, where KNN looks at his K closest neighbours and takes the mean of the sale price of those neighbours to determine the price. To retrieve the best model, we need to determine K for which it will perform best. Picking a low K tends to overfit the model. Picking a high K will increase bias and lowers variance. A rule of thumb can be used to determine K, which isnin which n is the size of the dataset [8].
+For our research we used grid search [11] in combination with K-fold cross validation. In this way we can efficiently look for the hyperparameters of the best performing model. We will use a 4 fold cross validation, 1 group as validation set and the other 3 groups as training set. A larger fold would not be feasible, because we only have 1460 data entries. We will run the grid search algorithm with different ranges for K (of the number of neighbours). Among the different ranges we will elaborate on the performances, which will be measured with the mean squared error. 
+
 
 \section{Results and conclusion}
-To compare the models performance of k-NN and Linear Regression four different metrics are used: Mean Squared Error (MSE), Median Absolute Error (MAE), $R^2$  and Variance Score (VS). MSE subtracts each true value from the predicted value, squares it and sums them up to one value. This value gets divided by the number of samples used for this test. The lower the score, the better. Mathematical notation:
+To compare the models performance of KNN and Linear Regression we make use of four different metrics: Mean Squared Error (MSE), Median Absolute Error (MAE), $R^2$ and Variance Score (VS). With MSE we subtract each true value from the predicted value, square it and sum them up to one value. This value get divided by the number of samples used for this test. The lower the score, the better. Mathematical notation:
 \\
 
 \begin{center}
