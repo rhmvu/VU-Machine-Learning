@@ -200,6 +200,7 @@ def prep_data_deprecated(quiet):
 
     return train
 
+
 # Formerly prep_data_rico
 def prep_data(quiet):
     # Data preprocessing
